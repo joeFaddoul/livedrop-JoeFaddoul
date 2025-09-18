@@ -63,36 +63,6 @@ Indexes:
 
 ---
 
-## API
-
-### Follow
-- `POST /follow`  
-- `DELETE /follow/:creatorId`  
-- `GET /creators/:creatorId/followers?cursor&limit`  
-- `GET /users/:userId/following?cursor&limit`  
-- `GET /follow/check?userId&creatorId`
-
-### Products & Drops
-- `POST /products`  
-- `POST /drops` { productId, startAt, endAt, initialStock, lowStockThreshold }  
-- `GET /browse/products?...`  
-- `GET /browse/drops?status=upcoming|live|ended&cursor&limit`
-
-### Orders
-- `POST /orders` (Idempotency-Key header)  
-- `GET /drops/:id`
-
-### Efficiency (cached)
-- `GET /api/creators/:id`  
-- `GET /api/products/:id`  
-- `GET /api/drops/:id`
-
-### Authentication & Realtime
-- `GET /api/realtime/token`  
-- `POST /api/auth/login`  
-- `POST /api/auth/refresh`
-
----
 
 ## Key Design Choices
 
@@ -153,5 +123,38 @@ Indexes:
 
 - **Stock runs low / sells out** → Order Service detects threshold → Kafka publishes `stock.low` / `drop.sold_out` → Notification Service alerts followers → caches invalidated for stock and drop lists.  
 
-- **User browses live drops** → API Gateway → Browsing Service → Redis (cache hit) or DB replica (fallback) → results paginated with cursor.  
+- **User browses live drops** → API Gateway → Browsing Service → Redis (cache hit) or DB replica (fallback) → results paginated with cursor.
+
+---
+
+ ## API
+
+### Follow
+- `POST /follow`  
+- `DELETE /follow/:creatorId`  
+- `GET /creators/:creatorId/followers?cursor&limit`  
+- `GET /users/:userId/following?cursor&limit`  
+- `GET /follow/check?userId&creatorId`
+
+### Products & Drops
+- `POST /products`  
+- `POST /drops` { productId, startAt, endAt, initialStock, lowStockThreshold }  
+- `GET /browse/products?...`  
+- `GET /browse/drops?status=upcoming|live|ended&cursor&limit`
+
+### Orders
+- `POST /orders` (Idempotency-Key header)  
+- `GET /drops/:id`
+
+### Efficiency (cached)
+- `GET /api/creators/:id`  
+- `GET /api/products/:id`  
+- `GET /api/drops/:id`
+
+### Authentication & Realtime
+- `GET /api/realtime/token`  
+- `POST /api/auth/login`  
+- `POST /api/auth/refresh`
+
+---
 
