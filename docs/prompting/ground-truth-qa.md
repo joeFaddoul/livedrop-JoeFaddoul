@@ -1,4 +1,4 @@
-### Q01: What happens if a user tries to register with a duplicate email?
+### Q01: Does Shoplite allow duplicate email registrations?
 **Expected retrieval context:** Document 1: Shoplite User Registration Process  
 **Authoritative answer:** Shoplite prevents duplicate registrations. If an email already exists, the user is prompted to reset their password instead of creating a new account.  
 **Required keywords in LLM response:** ["duplicate email", "reset password", "not allowed"]  
@@ -38,7 +38,7 @@
 
 ---
 
-### Q06: Which products are not eligible for returns?
+### Q06: If I buy supplements or a Final Sale item on Shoplite, can I return them?
 **Expected retrieval context:** Document 5: Shoplite Return and Refund Policies  
 **Authoritative answer:** Consumables, hygiene-related products, and items marked “Final Sale” are not eligible for return.  
 **Required keywords in LLM response:** ["consumables", "hygiene products", "Final Sale"]  
