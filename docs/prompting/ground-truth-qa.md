@@ -150,8 +150,8 @@
 
 ---
 
-### Q20: How are notifications used for orders and promotions?
-**Expected retrieval context:** Document 10: Shoplite Customer Support Procedures + Document 11: Shoplite Mobile App Features + Document 14: Shoplite Promotional Codes and Discounts  
-**Authoritative answer:** Customers receive notifications for order status changes, deliveries, and promotional offers. Notifications are delivered instantly through email and push, and users may adjust preferences in account settings.  
-**Required keywords in LLM response:** ["push notifications", "order status", "promotions"]  
+### Q20: How are notifications sent for order updates and promotional offers at Shoplite?
+**Expected retrieval context:** Document 4: Shoplite Order Tracking and Delivery + Document 11: Shoplite Mobile App Features + Document 14: Shoplite Promotional Codes and Discounts  
+**Authoritative answer:** Customers receive notifications for order updates (placed, shipped, out for delivery, delivered) via email and push notifications through the Shoplite mobile app. Promotional offers and discount campaigns are also delivered through email and mobile push notifications, with exclusive promotions often reserved for app users.  
+**Required keywords in LLM response:** ["push notifications", "email", "promotions", "order status"]  
 **Forbidden content:** ["no notifications", "manual updates only"]
