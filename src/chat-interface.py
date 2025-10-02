@@ -1,119 +1,68 @@
-#!/usr/bin/env python3
-import os
-import sys
-import json
-import time
 import requests
-from datetime import datetime
-
-def iso_utc_now():
-    # timezone-aware ISO-8601 without microseconds
-    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
-
-def get_base_url():
-    # CLI arg wins, then env var
-    if len(sys.argv) > 1:
-        url = sys.argv[1]
-    else:
-        url = os.environ.get("RAG_BASE_URL", "").strip()
-    if not url:
-        print("Usage: python src/chat-interface.py <ngrok-url>")
-        print("Or set RAG_BASE_URL environment variable.")
-        sys.exit(1)
-    if not url.startswith("http"):
-        url = "https://" + url
-    return url.rstrip("/")
-
-def healthcheck(base_url):
-    try:
-        r = requests.get(f"{base_url}/health", timeout=20)
-        r.raise_for_status()
-        return r.json()
-    except Exception as e:
-        print("Could not connect to backend:", e)
-        sys.exit(1)
-
-def ask(base_url, question, top_k=3, prompt_key="base_retrieval_prompt", timeout=60):
-    """
-    Returns: (answer, sources:list[str], latency_ms:int)
-    """
-    payload = {"query": question, "top_k": top_k, "prompt_key": prompt_key}
-
-    # status lines to mirror the assignment example
-    print("[Retrieving context...]")
-    print("[Calling LLM...]")
-
-    t0 = time.perf_counter()
-    r = requests.post(f"{base_url}/chat", json=payload, timeout=timeout)
-    t1 = time.perf_counter()
-
-    r.raise_for_status()
-    j = r.json()
-
-    # prefer server-side latency if present; otherwise use client timing
-    latency_ms = int(j.get("latency_ms")) if isinstance(j.get("latency_ms"), (int, float)) else int((t1 - t0) * 1000)
-
-    # sanitize common fields
-    raw_answer = j.get("answer") or j.get("response") or ""
-    answer = raw_answer.replace("[Your response based on context]", "").strip()
-    sources = j.get("sources", [])
-
-    return answer, sources, latency_ms
-
-def log_turn(log_path, row):
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+import datetime
+import json
 
 def main():
-    base_url = get_base_url()
-    h = healthcheck(base_url)
-    print(f"[{iso_utc_now()}] Connected to {base_url}")
-    print(f"Model: {h.get('model')} | Embedder: {h.get('embedder')} | Docs: {h.get('docs_loaded')}\n")
+    base_url = input("Enter your ngrok or Flask URL: ").strip()
+    if not base_url.startswith("http"):
+        print("Invalid URL. Please include http:// or https://")
+        return
+
+    log_file = "chat_log.jsonl"
+    print(f"Connected to {base_url}")
     print("Type your question. Press Enter on an empty line or type 'exit' to quit.\n")
 
-    log_file = os.path.join("logs", "chat_log.jsonl")
-
     while True:
-        try:
-            q = input("> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\nExiting chat.")
-            break
-
-        if not q or q.lower() in {"exit", "quit"}:
-            print("Exiting chat.")
+        question = input("> ").strip()
+        if not question or question.lower() == "exit":
+            print("Goodbye")
             break
 
         try:
-            answer, sources, latency_ms = ask(base_url, q, top_k=3, prompt_key="base_retrieval_prompt")
-            print("\nAnswer:", answer if answer else "(no answer)")
-            print("Sources:", ", ".join(sources) if sources else "—")
-            print("Latency:", f"{latency_ms} ms")
-            print("-" * 80)
+            print("[Retrieving context...]")
+            print("[Calling LLM...]")
 
-            log_turn(log_file, {
-                "timestamp": iso_utc_now(),
-                "base_url": base_url,
-                "question": q,
-                "answer": answer,
-                "sources": sources,
-                "latency_ms": latency_ms
-            })
+            resp = requests.post(
+                f"{base_url}/chat",
+                json={"question": question, "prompt_type": "auto"},
+                timeout=30
+            )
 
-        except requests.exceptions.Timeout:
-            print("Error: request timed out.")
-        except requests.exceptions.ConnectionError as e:
-            print("Error: connection problem:", e)
-        except requests.HTTPError as e:
-            # Print server error payload if available
-            try:
-                err_payload = e.response.json()
-            except Exception:
-                err_payload = e.response.text
-            print("HTTP error:", e, "| payload:", err_payload)
+            if resp.status_code != 200:
+                print(f"Error: {resp.status_code} {resp.text}")
+                continue
+
+            data = resp.json()
+
+            # Extract fields safely
+            answer = data.get("answer") or data.get("response", "")
+            sources = data.get("sources", [])
+            confidence = data.get("confidence", "Unknown")
+
+            # Print formatted result
+            print(f"\nAnswer: {answer}")
+            if isinstance(sources, list) and sources:
+                srcs = ", ".join([s.get("title", "") for s in sources])
+                print(f"Sources: {srcs}")
+            else:
+                print("Sources: None")
+            print(f"Confidence: {confidence}\n")
+
+            # Log conversation
+            with open(log_file, "a", encoding="utf-8") as f:
+                log_entry = {
+                    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                    "question": question,
+                    "answer": answer,
+                    "sources": sources,
+                    "confidence": confidence,
+                }
+                f.write(json.dumps(log_entry) + "\n")
+
+        except requests.exceptions.RequestException as e:
+            print(f" Connection error: {e}")
         except Exception as e:
-            print("Unexpected error:", e)
+            print(f" Unexpected error: {e}")
 
 if __name__ == "__main__":
     main()
