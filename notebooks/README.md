@@ -1,2 +1,2 @@
-# If The file did not load, add "tocolab" in the http request
+# If The file did not load, add "tocolab" in the request
 # githubtocolab.com/....
