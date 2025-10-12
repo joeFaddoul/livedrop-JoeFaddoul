@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Link } from 'react-router-dom';
+import { formatCurrency } from '@/lib/format';
+import { Badge } from '../atoms/badge';
+import { Button } from '../atoms/button';
+export function ProductCard({ product, onAddToCart }) {
+    return (_jsxs("article", { className: "flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm transition hover:border-brand/60 hover:shadow-lg hover:shadow-brand/10", children: [_jsxs(Link, { to: `/p/${product.id}`, className: "group relative block overflow-hidden rounded-t-2xl", children: [_jsx("img", { src: product.image, alt: product.title, loading: "lazy", className: "h-48 w-full object-cover transition duration-500 group-hover:scale-105" }), _jsx("span", { className: "absolute left-3 top-3", children: _jsx(Badge, { color: product.stockQty > 50 ? 'success' : product.stockQty < 10 ? 'warning' : 'info', children: product.stockQty > 50 ? 'In stock' : product.stockQty < 10 ? 'Low stock' : 'Limited' }) })] }), _jsxs("div", { className: "flex flex-1 flex-col gap-3 p-4", children: [_jsxs("header", { children: [_jsx("h3", { className: "text-lg font-semibold text-slate-100", children: product.title }), _jsx("p", { className: "mt-1 text-sm text-slate-400 line-clamp-2", children: product.description })] }), _jsxs("footer", { className: "mt-auto flex items-center justify-between", children: [_jsx("span", { className: "text-xl font-bold text-slate-50", children: formatCurrency(product.price) }), _jsx(Button, { size: "sm", onClick: () => onAddToCart(product.id), "aria-label": `Add ${product.title} to cart`, children: "Add to Cart" })] })] })] }));
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "qid": "Q01",
+    "category": "Accounts",
+    "question": "Does Shoplite allow duplicate email registrations?",
+    "answer": "A duplicate email registration is not allowed on Shoplite; if the system detects a duplicate email it blocks signup and prompts you to reset password instead."
+  },
+  {
+    "qid": "Q02",
+    "category": "Payments",
+    "question": "What payment methods are supported on Shoplite?",
+    "answer": "Shoplite accepts Visa, Mastercard, and major debit cards, and in eligible regions Cash on Delivery is offered while digital wallets are not yet supported."
+  },
+  {
+    "qid": "Q03",
+    "category": "Returns",
+    "question": "What is Shoplite's return window and how do refunds work?",
+    "answer": "Shoplite offers a 14-day return window for most items as long as they are unused and in original packaging; approved returns trigger refunds within 7-10 business days back to the original payment method."
+  },
+  {
+    "qid": "Q04",
+    "category": "Shipping",
+    "question": "What is Shoplite's standard delivery timeframe?",
+    "answer": "Standard delivery takes 3-5 business days, while express delivery delivers within 1-2 business days for an additional fee."
+  },
+  {
+    "qid": "Q05",
+    "category": "Returns",
+    "question": "How do order tracking and returns work together for customers?",
+    "answer": "Shoplite order tracking shows each milestone so you always know where your order is through delivery, and customers can request a return within 14 days with refunds issued in 7-10 business days after verification."
+  },
+  {
+    "qid": "Q06",
+    "category": "Returns",
+    "question": "If I buy supplements or a Final Sale item on Shoplite, can I return them?",
+    "answer": "Consumables, hygiene products, and anything labeled Final Sale are excluded from return eligibility."
+  },
+  {
+    "qid": "Q07",
+    "category": "Refunds",
+    "question": "How are refunds processed for Cash on Delivery orders?",
+    "answer": "Cash on Delivery refunds are issued by bank transfer once customers provide account details, typically arriving within 7-10 business days after the return is processed."
+  },
+  {
+    "qid": "Q08",
+    "category": "Reviews",
+    "question": "How can customers leave reviews on Shoplite?",
+    "answer": "Only verified buyers can submit 1-5 star ratings, write text feedback, and attach photos; submissions are moderated and sellers may only reply publicly."
+  },
+  {
+    "qid": "Q09",
+    "category": "Sellers",
+    "question": "How do I create a seller account on Shoplite?",
+    "answer": "Begin seller registration by submitting business documents, proof of registration, tax ID, and banking information; approval usually takes 2-3 business days before dashboard access is granted."
+  },
+  {
+    "qid": "Q10",
+    "category": "Sellers",
+    "question": "How are sellers paid and what minimum thresholds apply?",
+    "answer": "Sellers receive weekly payouts when they meet the minimum $100 balance, with disbursements reflecting sales minus the 10% commission and transaction fees."
+  },
+  {
+    "qid": "Q11",
+    "category": "Inventory",
+    "question": "How does Shoplite prevent overselling?",
+    "answer": "Shoplite uses conditional stock decrements at checkout to prevent overselling, automatically marking items Sold Out once inventory hits zero and alerting shoppers to changes."
+  },
+  {
+    "qid": "Q12",
+    "category": "Fees",
+    "question": "What commission and fees do sellers pay on Shoplite?",
+    "answer": "Completed orders incur a 10% commission plus 2-3% transaction fees, with optional ads adding extra costs and remittances included with weekly payouts above the minimum balance."
+  },
+  {
+    "qid": "Q13",
+    "category": "Support",
+    "question": "What customer support options are available on Shoplite?",
+    "answer": "Support operates Monday through Friday via live chat, email, and phone, aiming to respond within 24-48 hours while directing urgent issues to chat."
+  },
+  {
+    "qid": "Q14",
+    "category": "Mobile",
+    "question": "What app-exclusive features are available for Shoplite users?",
+    "answer": "The mobile app includes biometric login, barcode scanning tools, push notifications, and access to app-only discounts."
+  },
+  {
+    "qid": "Q15",
+    "category": "API",
+    "question": "How does the Shoplite API help sellers manage their store?",
+    "answer": "The REST API enables inventory sync, automated order workflows, and secure data access through OAuth 2.0 with rate limits to protect the platform."
+  },
+  {
+    "qid": "Q16",
+    "category": "Privacy",
+    "question": "What privacy controls can users exercise on Shoplite?",
+    "answer": "Users can update details, request a data export, or delete account access, and Shoplite will anonymize personal data while retaining necessary records for compliance."
+  },
+  {
+    "qid": "Q17",
+    "category": "Security",
+    "question": "What security protections does Shoplite provide for user accounts?",
+    "answer": "Shoplite layers encryption with salted hashing, requires two-factor authentication, and continuously monitors activity with fraud detection safeguards."
+  },
+  {
+    "qid": "Q18",
+    "category": "Promotions",
+    "question": "How do promotional codes work for buyers and sellers?",
+    "answer": "Buyers can redeem one code per order and discounts cannot be stacked or applied after checkout, while sellers configure campaigns in the Seller Dashboard for approval and tracking."
+  },
+  {
+    "qid": "Q19",
+    "category": "Warranty",
+    "question": "What steps are needed to submit a warranty claim?",
+    "answer": "Customers open a warranty claim with proof of purchase and defect evidence, and approved products may be refunded or replaced within the 6-12 months coverage window."
+  },
+  {
+    "qid": "Q20",
+    "category": "Notifications",
+    "question": "How are notifications sent for order updates and promotional offers at Shoplite?",
+    "answer": "Shoplite sends order status updates and promotions through email and push notifications, with the mobile app highlighting campaign exclusives for engaged shoppers."
+  }
+]

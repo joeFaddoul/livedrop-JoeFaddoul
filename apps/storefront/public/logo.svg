@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title>Storefront Logo</title>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="20" fill="#0f172a"/>
+  <path d="M20 45l40-20 40 20v40l-40 20-40-20V45z" fill="url(#grad)" opacity="0.9"/>
+  <path d="M36 54h48v12H36z" fill="#0f172a" opacity="0.85"/>
+  <circle cx="48" cy="84" r="6" fill="#e2e8f0"/>
+  <circle cx="72" cy="84" r="6" fill="#e2e8f0"/>
+</svg>
