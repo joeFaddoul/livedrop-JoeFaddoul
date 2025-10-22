@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
-import { Link, NavLink, Outlet, useLoaderData, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, NavLink, Outlet, useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../atoms/button';
 import { CartDrawer } from '../organisms/cart-drawer';
 import { SupportPanel } from '../organisms/support-panel';
-import { useCartStore, calculateCartTotal } from '@/lib/store';
+import { UserLogin } from '@/components/UserLogin';
+import { useCartStore, useCustomerStore, calculateCartTotal } from '@/lib/store';
 import type { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 
@@ -13,6 +14,7 @@ type LayoutLoaderData = {
 
 export function StorefrontLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { products } = useLoaderData() as LayoutLoaderData;
   const [isSupportOpen, setSupportOpen] = useState(false);
 
@@ -22,6 +24,9 @@ export function StorefrontLayout() {
   const closeCart = useCartStore((state) => state.closeCart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
+  const syncWithCatalog = useCartStore((state) => state.syncWithCatalog);
+  const profile = useCustomerStore((state) => state.profile);
+  const recentOrders = useCustomerStore((state) => state.recentOrders);
 
   const productMap = useMemo(
     () =>
@@ -32,12 +37,18 @@ export function StorefrontLayout() {
     [products],
   );
 
+  useEffect(() => {
+    const validIds = products.map((product) => product.id);
+    syncWithCatalog(validIds);
+  }, [products, syncWithCatalog]);
+
   const subtotal = calculateCartTotal(
     items,
     Object.fromEntries(products.map((product) => [product.id, product.price])),
   );
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
+  const showIdentityCard = location.pathname === '/';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900">
@@ -72,16 +83,35 @@ export function StorefrontLayout() {
             >
               Checkout
             </NavLink>
+            {recentOrders.length > 0 ? (
+              <NavLink
+                to={`/order/${recentOrders[0].orderId}`}
+                className={({ isActive }) =>
+                  isActive ? 'text-brand-light' : 'hover:text-slate-100'
+                }
+              >
+                Track Order
+              </NavLink>
+            ) : (
+              <span className="cursor-not-allowed text-slate-600" title="Provide your email to view order tracking">
+                Track Order
+              </span>
+            )}
             <NavLink
-              to="/order/ORD-ALPHA99"
+              to="/admin/dashboard"
               className={({ isActive }) =>
                 isActive ? 'text-brand-light' : 'hover:text-slate-100'
               }
             >
-              Track Order
+              Admin Dashboard
             </NavLink>
           </nav>
           <div className="flex items-center gap-3">
+            {profile && (
+              <span className="hidden rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200 md:inline-flex">
+                {profile.name.split(' ')[0]}
+              </span>
+            )}
             <Button
               variant="secondary"
               onClick={() => setSupportOpen(true)}
@@ -109,7 +139,18 @@ export function StorefrontLayout() {
             <span className="font-semibold text-slate-100">{formatCurrency(subtotal)}</span>. Ask support for policies
             or track sample order IDs like <code className="rounded bg-slate-800 px-2 py-1">ORD-ALPHA99</code>.
           </p>
+          {profile ? (
+            <p className="mt-2 text-xs text-slate-400">
+              Signed in as <span className="font-semibold text-slate-200">{profile.email}</span>. Recent orders and
+              support answers will use this identity.
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-slate-400">
+              Save your email below so orders, SSE tracking, and the assistant can personalize responses.
+            </p>
+          )}
         </section>
+        {showIdentityCard && <UserLogin />}
         <Outlet
           context={{
             products,

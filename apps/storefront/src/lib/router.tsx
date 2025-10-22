@@ -23,6 +23,10 @@ const OrderStatusPage = lazy(() =>
   import('@/pages/order-status').then((module) => ({ default: module.OrderStatusPage })),
 );
 
+const AdminDashboardPage = lazy(() =>
+  import('@/pages/admin-dashboard').then((module) => ({ default: module.AdminDashboardPage })),
+);
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -51,6 +55,10 @@ export const router = createBrowserRouter([
       {
         path: 'order/:orderId',
         element: <OrderStatusPage />,
+      },
+      {
+        path: 'admin/dashboard',
+        element: <AdminDashboardPage />,
       },
     ],
   },

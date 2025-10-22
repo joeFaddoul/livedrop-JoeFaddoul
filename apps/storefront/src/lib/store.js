@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 const STORAGE_KEY = 'storefront-cart';
+const CUSTOMER_STORAGE_KEY = 'storefront-customer';
 export const useCartStore = create()(persist((set, get) => ({
     items: [],
     isCartOpen: false,
@@ -34,6 +35,9 @@ export const useCartStore = create()(persist((set, get) => ({
         };
     }),
     clear: () => set({ items: [] }),
+    syncWithCatalog: (validProductIds) => set((state) => ({
+        items: state.items.filter((item) => item.quantity > 0 && validProductIds.includes(item.productId)),
+    })),
 }), {
     name: STORAGE_KEY,
     partialize: (state) => ({
@@ -43,3 +47,11 @@ export const useCartStore = create()(persist((set, get) => ({
 export function calculateCartTotal(items, prices) {
     return items.reduce((total, item) => total + (prices[item.productId] ?? 0) * item.quantity, 0);
 }
+export const useCustomerStore = create()(persist((set) => ({
+    profile: undefined,
+    recentOrders: [],
+    setCustomer: (profile, recentOrders) => set({ profile, recentOrders }),
+    clearCustomer: () => set({ profile: undefined, recentOrders: [] }),
+}), {
+    name: CUSTOMER_STORAGE_KEY,
+}));

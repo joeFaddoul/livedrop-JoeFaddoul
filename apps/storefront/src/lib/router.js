@@ -8,6 +8,7 @@ const ProductPage = lazy(() => import('@/pages/product').then((module) => ({ def
 const CartPage = lazy(() => import('@/pages/cart').then((module) => ({ default: module.CartPage })));
 const CheckoutPage = lazy(() => import('@/pages/checkout').then((module) => ({ default: module.CheckoutPage })));
 const OrderStatusPage = lazy(() => import('@/pages/order-status').then((module) => ({ default: module.OrderStatusPage })));
+const AdminDashboardPage = lazy(() => import('@/pages/admin-dashboard').then((module) => ({ default: module.AdminDashboardPage })));
 export const router = createBrowserRouter([
     {
         path: '/',
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
             {
                 path: 'order/:orderId',
                 element: _jsx(OrderStatusPage, {}),
+            },
+            {
+                path: 'admin/dashboard',
+                element: _jsx(AdminDashboardPage, {}),
             },
         ],
     },
