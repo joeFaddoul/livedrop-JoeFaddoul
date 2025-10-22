@@ -14,7 +14,6 @@ import { registerOrderStatusStream } from './sse/order-status.js';
 
 const app = express();
 
-console.log('Allowed origins:', env.ALLOWED_ORIGINS);
 app.use(
   cors({
     origin: env.ALLOWED_ORIGINS,
