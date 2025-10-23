@@ -1,95 +1,107 @@
-# Deployment Guide (Week 5 MVP)
+# Deployment Guide
 
-This guide walks through deploying the complete LiveDrop MVP: MongoDB Atlas, the Express API, Vercel storefront, and the Week 3 Colab LLM with the new `/generate` endpoint.
+Use this guide to deploy LiveDrop for real-world use. It assumes familiarity with Node.js tooling and access to the third-party services referenced below.
 
 ---
 
-## 1. MongoDB Atlas (Database)
+## 1. Prerequisites
 
-1. Sign up at [mongodb.com/cloud/atlas/register](https://www.mongodb.com/cloud/atlas/register) and create an **M0 Free Tier** cluster.
-2. In the Atlas UI:
-   - Create a database user with read/write access.
-   - Whitelist `0.0.0.0/0` under **Network Access** so the API and local dev can connect.
-   - Obtain the connection string (`mongodb+srv://...`).
-3. Copy `apps/api/.env.example` to `.env` and set:
+- GitHub repository access with build-ready code.
+- Node.js 18+ and npm installed locally (for building and smoke tests).
+- Accounts for: MongoDB Atlas, a Node-compatible hosting provider (Render, Railway, Fly.io, etc.), and Vercel (or another static hosting provider) for the storefront.
+- Optional: Access to an internal or partner LLM API for the assistant features.
+
+---
+
+## 2. Environment Configuration
+
+1. Copy each example environment file in the repo and provide real values:
+   - `apps/api/.env.example -> apps/api/.env`
+   - `apps/storefront/.env.example -> apps/storefront/.env`
+2. Required API variables:
    ```bash
+   PORT=4000
    MONGODB_URI="mongodb+srv://<user>:<password>@<cluster>/<dbname>?retryWrites=true&w=majority"
-   ALLOWED_ORIGINS="http://localhost:5173,https://<your-vercel-app>"
-   LLM_BASE_URL="https://<your-ngrok-subdomain>.ngrok.io"
+   ALLOWED_ORIGINS="https://<your-storefront-domain>,http://localhost:5173"
+   LLM_BASE_URL="https://<llm-service>/generate" # optional but required for assistant features
+   LLM_API_KEY="<token-if-required>"
    ```
-4. Seed the database once locally:
+3. Storefront variables:
+   ```
+   VITE_APP_API_BASE=https://<your-api-host>
+   OPENAI_API_KEY=<optional>
+   ```
+   > Keep local `.env` files out of source control.
+
+---
+
+## 3. Provision MongoDB Atlas
+
+1. Create an **M0 Free Tier** (or higher) cluster.
+2. Add a database user with read/write to the desired database.
+3. Allow connections from application hosts. For testing, `0.0.0.0/0` is acceptable; for production, restrict to specific IPs or VPC peering.
+4. Record the connection string for `MONGODB_URI`.
+5. Seed the database once from your local machine:
    ```bash
    cd apps/api
    npm install
    npm run seed
    ```
-   > Seeds ~12 customers, 30 products, and 18 orders with staged statuses.
+   This preloads sample customers, orders, and products that the storefront expects.
 
 ---
 
-## 2. Backend API (Render.com or Railway)
+## 4. Deploy the Backend API
 
-1. Push the repo to GitHub if you haven’t already.
-2. Create a new **Web Service** on Render (or Railway) pointing to `apps/api`.
-3. Set the following environment variables in the dashboard:
-   - `PORT=4000`
-   - `MONGODB_URI=<Atlas connection string>`
-   - `ALLOWED_ORIGINS=https://<your-vercel-app>,http://localhost:5173`
-   - `LLM_BASE_URL=https://<your-ngrok-subdomain>.ngrok.io`
-   - `LLM_API_KEY=<if your Colab endpoint expects one, else leave empty>`
-4. Build & run command:
-   ```bash
-   npm install
-   npm start
-   ```
-   Render automatically runs `npm install` and starts `npm start`.
-5. After deploy, verify health:
+1. Push your code to a Git repository accessible by the hosting provider.
+2. Create a new service pointing to `apps/api`. On Render/Railway, set:
+   - Build command: `npm install`
+   - Start command: `npm start`
+   - Working directory: `apps/api`
+3. Configure the environment variables listed in section 2.
+4. Enable auto-deploy on main (or your chosen branch).
+5. After deployment, verify the health endpoint:
    ```bash
    curl https://<api-host>/health
    ```
+6. If using an external LLM service, confirm the `/api/assistant/chat` endpoint returns responses.
 
 ---
 
-## 3. Frontend Storefront (Vercel)
+## 5. Deploy the Storefront
 
-1. From the repo root, ensure `apps/storefront/.env.example` exists. Create `.env` with:
-   ```
-   VITE_APP_API_BASE=https://<your-api-host>
-   OPENAI_API_KEY=<optional>
-   ```
-2. Push latest changes to GitHub.
-3. In Vercel:
-   - Import the repository.
-   - Set project root to `apps/storefront`.
-   - Framework: `Vite`.
-   - Environment variables: `VITE_APP_API_BASE`, `OPENAI_API_KEY` (optional), `NODE_VERSION=18`.
-4. Deploy. After build, confirm storefront loads and the Ask Support panel hits your API.
+1. Ensure the storefront `.env` file is populated with production URLs.
+2. Import the repository into Vercel (or your preferred static host).
+3. Configure:
+   - Project root: `apps/storefront`
+   - Framework preset: `Vite`
+   - Build command: `npm install && npm run build`
+   - Output directory: `dist`
+   - Environment variables: `VITE_APP_API_BASE`, `OPENAI_API_KEY` (optional), `NODE_VERSION=18`
+4. Trigger a deploy and verify the storefront loads against the deployed API.
+5. Check key flows: placing an order, viewing order history, admin dashboards, and the assistant sidebar.
 
 ---
 
-## 4. LLM Endpoint (Week 3 Colab)
+## 6. LLM Service Options
 
-1. Open `notebooks/llm_deployment.ipynb` in Google Colab.
-2. Add a new cell near the Flask routes:
-   ```python
-   @app.route('/generate', methods=['POST'])
-   def generate():
-       payload = request.get_json(force=True)
-       prompt = payload.get("prompt", "")
-       max_tokens = int(payload.get("max_tokens", 300))
-       if not prompt:
-           return jsonify({"error": "prompt required"}), 400
+LiveDrop can integrate with any endpoint compatible with the `/generate` contract:
 
-       output = model.generate(prompt, max_tokens=max_tokens)
-       return jsonify({"text": output})
-   ```
-3. Run all cells, input your ngrok token when prompted, and copy the public HTTPS URL.
-4. Update `LLM_BASE_URL` in both local `.env` (for testing) and the deployed API env vars.
-5. Keep the notebook running during demos; restart ngrok/Colab if the URL changes.
+```http
+POST /generate
+{
+  "prompt": "...",
+  "max_tokens": 300
+}
+```
+
+- If you operate your own model, host it behind HTTPS and secure it with an API key.
+- Update `LLM_BASE_URL` and `LLM_API_KEY` in both local and hosted environments.
+- When the LLM is unavailable, the assistant UI will surface fallback messaging; monitor logs for repeated failures.
 
 ---
 
-## 5. Local Development Recap
+## 7. Local Verification Checklist
 
 ```bash
 # API
@@ -103,26 +115,19 @@ npm install
 npm run dev
 ```
 
-Set corresponding `.env` files before running.
+Smoke tests to run before every release:
+- `npm run test` in `apps/api`
+- `npm run test` in `apps/storefront`
+- Manual API checks: `/api/customers`, `/api/orders/:id`, `/api/assistant/chat`, and `/api/sse/orders/<orderId>`
+- Manual storefront journey: place a new order and confirm live tracking plus admin analytics updates.
 
 ---
 
-## 6. Smoke Tests Before Submission
+## 8. Ongoing Operations
 
-- `npm run test` inside `apps/api` (runs Vitest suite plus `/tests`).
-- `npm run test` inside `apps/storefront`.
-- Manual checks:
-  - `/api/customers?email=demo@example.com`
-  - `/api/orders/:id`
-  - `/api/assistant/chat` with an order question
-  - SSE stream: open `/api/sse/orders/<orderId>` in browser and place a new order.
-  - Frontend order placement + live tracking + admin dashboard metrics.
+- Update environment variables in hosting dashboards whenever the database URI, API keys, or LLM endpoints change.
+- Rerun `npm run seed` after refreshing Atlas or promoting a new database.
+- Monitor logs and metrics from your hosting providers; set alerts on elevated error rates or response times.
+- Keep Colab/ngrok-based endpoints for development only. For production, prefer a managed, persistent hosting solution.
 
----
-
-## Manual Follow-Ups
-
-- Replace placeholder demo email/ids in documentation with real seeded values.
-- Re-run `npm run seed` whenever you refresh the Atlas cluster.
-- Each time ngrok restarts, update `LLM_BASE_URL` in the backend environment.
-- Capture short demo videos/screenshots if required by your instructor.
+Once these steps are complete, LiveDrop is live and ready for customers.
